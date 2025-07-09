@@ -43,6 +43,8 @@
 // Recording constants
 #define MAX_RECORDING_TIME_MS 600000  // 10 minutes
 #define RECORDING_BUFFER_SIZE 512
+#define AUDIO_BLOCK_SIZE 256          // The Teensy Audio Library works with fixed-size audio blocks (128 samples × 2 bytes per sample)
+
 #define CALLS_DIRECTORY "CALLS"
 
 // Button debounce
