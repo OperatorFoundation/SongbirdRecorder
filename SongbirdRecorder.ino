@@ -43,17 +43,24 @@ AudioControlSGTL5000 audioShield;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire1, OLED_RESET);
 
 
-void setup() {
+void setup() 
+{
   Serial.begin(9600);
   Serial.println("Songbird Phone Call Recorder Starting...");
 
   // Initialize hardware pins
+
+  // LEDs
   pinMode(LED_1_PIN, OUTPUT);
   pinMode(LED_2_PIN, OUTPUT);
+
+  // Buttons
   pinMode(BTN_UP_PIN, INPUT_PULLUP);
   pinMode(BTN_DOWN_PIN, INPUT_PULLUP);
   pinMode(BTN_LEFT_PIN, INPUT_PULLUP);
   pinMode(BTN_RIGHT_PIN, INPUT_PULLUP);
+
+  // SD Card
   pinMode(SDCARD_DETECT_PIN, INPUT_PULLUP);
 
   // Turn off LEDs initially
@@ -65,8 +72,9 @@ void setup() {
   Wire1.setSDA(OLED_SDA_PIN);
   Wire1.setSCL(OLED_SCL_PIN);
 
-  initializeDisplay();
+  setupAudioProcessing();
   initializeSDCard();
+  initializeDisplay();
   updateDisplay();
   
   Serial.println("Songbird Recorder is ready.");
@@ -109,7 +117,7 @@ void loop()
   }
   else 
   {
-    digitalWrite(LED_1_PIN, LOW)
+    digitalWrite(LED_1_PIN, LOW);
   }
 
   // Playback LED

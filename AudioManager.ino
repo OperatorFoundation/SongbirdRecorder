@@ -15,22 +15,21 @@
  // Audio connections - Phone call routing
  AudioConnection patchCord1(inputFromPhone, 0, headsetMixer, 0);    // Phone left to headset mixer
  AudioConnection patchCord2(inputFromPhone, 1, headsetMixer, 1);    // Phone right to headset mixer
- AudioConnection patchCord3(headsetMixer, 0, outputToHeadset);      // Headset mixer to headset left
- AudioConnection patchCord4(headsetMixer, 0, outputToHeadset, 1);   // Headset mixer to headset right
+ AudioConnection patchCord3(headsetMixer, outputToHeadset);         // Mixed output to headset
 
  // Audio connections - Microphone passthrough
- AudioConnection patchCord5(inputFromHeadset, 0, outputToPhone, 0); // Headset mic to phone
+AudioConnection patchCord4(inputFromHeadset, outputToPhone);       // Headset mic to phone
 
  // Audio connections - Recording (capture both sides of the conversation)
- AudioConnection patchCord6(inputFromPhone, 0, phoneMixer, 0);      // Phone left for recording
- AudioConnection patchCord7(inputFromPhone, 1, phoneMixer, 1);      // Phone right for recording
- AudioConnection patchCord8(inputFromHeadset, 0, phoneMixer, 2);    // Headset mic for recording
- AudioConnection patchCord9(phoneMixer, 0, recordQueue, 0);         // Mixed audio to recorder
- AudioConnection patchCord10(phoneMixer, 0, inputLevel, 0);         // Audio level monitoring
+ AudioConnection patchCord5(inputFromPhone, 0, phoneMixer, 0);      // Phone left for recording
+ AudioConnection patchCord6(inputFromPhone, 1, phoneMixer, 1);      // Phone right for recording
+ AudioConnection patchCord7(inputFromHeadset, 0, phoneMixer, 2);    // Headset mic for recording
+ AudioConnection patchCord8(phoneMixer, 0, recordQueue, 0);         // Mixed audio to recorder
+ AudioConnection patchCord9(phoneMixer, 0, inputLevel, 0);         // Audio level monitoring
 
  // Audio connections - Playback
- AudioConnection patchCord11(playWav, 0, headsetMixer, 2);          // Playback left to headset mixer
- AudioConnection patchCord12(playWav, 1, headsetMixer, 3);          // Playback right to headset mixer
+ AudioConnection patchCord10(playWav, 0, headsetMixer, 2);          // Playback left to headset mixer
+ AudioConnection patchCord11(playWav, 1, headsetMixer, 3);          // Playback right to headset mixer
 
 void setupAudioProcessing()
 {
@@ -84,23 +83,12 @@ void startRecording()
   createWAVFile(filename);
 
   // Start recording queue
-  if (recordQueue.begin()) 
-  {
-    currentState = STATE_RECORDING;
-    recordStartTime = millis();
+  recordQueue.begin();
+  currentState = STATE_RECORDING;
+  recordStartTime = millis();
 
-    Serial.print("Recording started: ");
-    Serial.println(filename);
-  }
-  else 
-  {
-    Serial.println("Failed to start the recording queue");
-
-    if (recordingFile) 
-    {
-      recordingFile.close();
-    }
-  }
+  Serial.print("Recording started: ");
+  Serial.println(filename);
 }
 
 void stopRecording()

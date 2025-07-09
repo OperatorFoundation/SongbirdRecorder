@@ -17,16 +17,27 @@
 #include <Adafruit_SSD1306.h>
 
 // Hardware pin definitions
-#define SDCARD_CS_PIN    10
-#define SDCARD_DETECT_PIN 9
-#define BTN_UP_PIN       5    // Start/Stop recording
-#define BTN_DOWN_PIN     4    // Play/Pause
-#define BTN_LEFT_PIN     6    // Previous file
+
+// Buttons
 #define BTN_RIGHT_PIN    3    // Next file
+#define BTN_DOWN_PIN     4    // Play/Pause
+#define BTN_UP_PIN       5    // Start/Stop recording
+#define BTN_LEFT_PIN     6    // Previous file
+
+// SD card
+#define SDCARD_DETECT_PIN 9
+#define SDCARD_CS_PIN    10
+#define SDCARD_MOSI_PIN  11
+#define SDCARD_MISO_PIN  12
+#define SDCARD_SCK_PIN   13
+
+// LED
 #define LED_1_PIN        14   // Recording indicator (Blue)
 #define LED_2_PIN        15   // Playback indicator (Pink)
-#define OLED_SDA_PIN     17
+
+// Display
 #define OLED_SCL_PIN     16
+#define OLED_SDA_PIN     17
 
 // Display constants
 #define SCREEN_WIDTH 128
@@ -36,7 +47,7 @@
 
 // Audio constants
 #define AUDIO_MEMORY_BLOCKS 60
-#define AUDIO_SAMPLE_RATE 44100
+#define RECORDING_SAMPLE_RATE 44100
 #define AUDIO_BITS_PER_SAMPLE 16
 #define AUDIO_CHANNELS 1  // Mono recording
 
