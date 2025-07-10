@@ -115,6 +115,7 @@ extern AudioInputI2S inputFromHeadset;
 extern AudioOutputUSB outputToPhone;
 extern AudioOutputI2S outputToHeadset;
 extern AudioMixer4 phoneMixer;
+extern AudioMixer4 phoneOutputMixer;
 extern AudioMixer4 leftHeadphonesMixer;
 extern AudioMixer4 rightHeadphonesMixer;
 extern AudioRecordQueue recordQueue;

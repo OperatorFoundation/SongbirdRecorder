@@ -35,6 +35,7 @@ AudioInputI2S inputFromHeadset;
 AudioOutputUSB outputToPhone;
 AudioOutputI2S outputToHeadset;
 AudioMixer4 phoneMixer;
+AudioMixer4 phoneOutputMixer;
 AudioMixer4 leftHeadphonesMixer;
 AudioMixer4 rightHeadphonesMixer;
 AudioRecordQueue recordQueue;

@@ -20,7 +20,9 @@ AudioConnection patchCord3(leftHeadphonesMixer, 0, outputToHeadset, 0);  // Left
 AudioConnection patchCord4(rightHeadphonesMixer, 0, outputToHeadset, 1); // Right mixer to right output
 
 // Microphone passthrough - same as your working code
-AudioConnection patchCord5(inputFromHeadset, 0, outputToPhone, 0);
+AudioConnection patchCord5(inputFromHeadset, 0, phoneOutputMixer, 0);  // Headset mic to mixer
+AudioConnection patchCord5b(recordBeep, 0, phoneOutputMixer, 1);       // Beep to mixer
+AudioConnection patchCord5c(phoneOutputMixer, 0, outputToPhone, 0);    // Mixed output to phone
 
 // Recording connections
 AudioConnection patchCord6(inputFromPhone, 0, phoneMixer, 0);           // Phone left for recording
@@ -30,7 +32,6 @@ AudioConnection patchCord9(phoneMixer, 0, recordQueue, 0);              // Mixed
 AudioConnection patchCord10(phoneMixer, 0, inputLevel, 0);              // Audio level monitoring
 AudioConnection patchCordBeep(recordBeep, 0, leftHeadphonesMixer, 2);   // Beep to left headphone mixer
 AudioConnection patchCordBeep2(recordBeep, 0, rightHeadphonesMixer, 2); // Beep to right headphone mixer
-
 
 // Playback connections
 AudioConnection patchCord11(playWav, 0, leftHeadphonesMixer, 1);   // Playback left to left mixer
@@ -75,6 +76,12 @@ void setupAudioProcessing()
   phoneMixer.gain(1, 0.5);  // Phone right
   phoneMixer.gain(2, 0.5);  // Headset mic
   phoneMixer.gain(3, 0.0);  // Unused
+
+  // Phone output mixer
+  phoneOutputMixer.gain(0, 1.0);  // Headset microphone
+  phoneOutputMixer.gain(1, 0.3);  // Beep (lower volume)
+  phoneOutputMixer.gain(2, 0.0);  // Unused
+  phoneOutputMixer.gain(3, 0.0);  // Unused
 
   // Initialize beep generator
   recordBeep.frequency(BEEP_FREQUENCY);
