@@ -62,6 +62,21 @@ void updateDisplay()
     showIdleStatus();
   }
 
+  // DEBUG:
+  // display.setCursor(0, 24);  // Bottom line
+  // display.print("USB Lvl: ");
+  // float level = getInputLevel();
+  // display.print(level, 2);  // Show level with 2 decimal places
+
+  // if (level > 0.01) 
+  // {
+  //   display.print(" AUDIO");
+  // } 
+  // else 
+  // {
+  //   display.print(" QUIET");
+  // }
+
   display.display();
 }
 

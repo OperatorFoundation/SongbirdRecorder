@@ -12,52 +12,66 @@
 
  #include "SongbirdRecorder.h"
 
- // Audio connections - Phone call routing
- AudioConnection patchCord1(inputFromPhone, 0, headsetMixer, 0);    // Phone left to headset mixer
- AudioConnection patchCord2(inputFromPhone, 1, headsetMixer, 1);    // Phone right to headset mixer
- AudioConnection patchCord3(headsetMixer, outputToHeadset);         // Mixed output to headset
+ // Audio connections - Core phone call routing
+// Audio connections - Use separate left/right mixers like your working code
+AudioConnection patchCord1(inputFromPhone, 0, leftHeadphonesMixer, 0);   // Phone left to left mixer
+AudioConnection patchCord2(inputFromPhone, 1, rightHeadphonesMixer, 0);  // Phone right to right mixer
+AudioConnection patchCord3(leftHeadphonesMixer, 0, outputToHeadset, 0);  // Left mixer to left output
+AudioConnection patchCord4(rightHeadphonesMixer, 0, outputToHeadset, 1); // Right mixer to right output
 
- // Audio connections - Microphone passthrough
-AudioConnection patchCord4(inputFromHeadset, outputToPhone);       // Headset mic to phone
+// Microphone passthrough - same as your working code
+AudioConnection patchCord5(inputFromHeadset, 0, outputToPhone, 0);
 
- // Audio connections - Recording (capture both sides of the conversation)
- AudioConnection patchCord5(inputFromPhone, 0, phoneMixer, 0);      // Phone left for recording
- AudioConnection patchCord6(inputFromPhone, 1, phoneMixer, 1);      // Phone right for recording
- AudioConnection patchCord7(inputFromHeadset, 0, phoneMixer, 2);    // Headset mic for recording
- AudioConnection patchCord8(phoneMixer, 0, recordQueue, 0);         // Mixed audio to recorder
- AudioConnection patchCord9(phoneMixer, 0, inputLevel, 0);         // Audio level monitoring
+// Recording connections
+AudioConnection patchCord6(inputFromPhone, 0, phoneMixer, 0);      // Phone left for recording
+AudioConnection patchCord7(inputFromPhone, 1, phoneMixer, 1);      // Phone right for recording  
+AudioConnection patchCord8(inputFromHeadset, 0, phoneMixer, 2);    // Headset mic for recording
+AudioConnection patchCord9(phoneMixer, 0, recordQueue, 0);         // Mixed audio to recorder
+AudioConnection patchCord10(phoneMixer, 0, inputLevel, 0);         // Audio level monitoring
 
- // Audio connections - Playback
- AudioConnection patchCord10(playWav, 0, headsetMixer, 2);          // Playback left to headset mixer
- AudioConnection patchCord11(playWav, 1, headsetMixer, 3);          // Playback right to headset mixer
+// Playback connections
+AudioConnection patchCord11(playWav, 0, leftHeadphonesMixer, 1);   // Playback left to left mixer
+AudioConnection patchCord12(playWav, 1, rightHeadphonesMixer, 1);  // Playback right to right mixer
 
 void setupAudioProcessing()
 {
   Serial.println("Initializing audio processing...");
 
-  // Allocate audio memory
+  // Allocate memory
   AudioMemory(AUDIO_MEMORY_BLOCKS);
+  
+  // Setup headphone amplifier
+  digitalWrite(HPAMP_VOL_CLK, LOW);
+  digitalWrite(HPAMP_VOL_UD, LOW);
+  digitalWrite(HPAMP_SHUTDOWN, LOW);  // LOW to enable headphone amp
 
-  // Initialize audio shield
+  pinMode(HPAMP_VOL_CLK, OUTPUT);
+  pinMode(HPAMP_VOL_UD, OUTPUT);
+  pinMode(HPAMP_SHUTDOWN, OUTPUT);
+  
   audioShield.enable();
   audioShield.volume(0.5);
   audioShield.inputSelect(AUDIO_INPUT_MIC);
   audioShield.adcHighPassFilterEnable();
-
-  // Wait for audio shield to stabilize
-  delay(100);
-
-  // Configure headset mixer (what user hears)
-  headsetMixer.gain(0, PHONE_AUDIO_LEVEL);    // Phone left channel
-  headsetMixer.gain(1, PHONE_AUDIO_LEVEL);    // Phone right channel
-  headsetMixer.gain(2, PLAYBACK_AUDIO_LEVEL); // Playback left
-  headsetMixer.gain(3, PLAYBACK_AUDIO_LEVEL); // Playback right
-
-  // Configure phone mixer (what gets recorded)
-  phoneMixer.gain(0, RECORDING_MIX_LEVEL);    // Phone left
-  phoneMixer.gain(1, RECORDING_MIX_LEVEL);    // Phone right
-  phoneMixer.gain(2, RECORDING_MIX_LEVEL);    // Headset mic
-  phoneMixer.gain(3, 0.0);                    // Unused
+  
+  delay(1000);
+  
+  // Configure mixers
+  leftHeadphonesMixer.gain(0, 0.5);   // USB phone left channel
+  leftHeadphonesMixer.gain(1, 0.3);   // Playback left channel
+  leftHeadphonesMixer.gain(2, 0);     // Empty
+  leftHeadphonesMixer.gain(3, 0);     // Empty
+  
+  rightHeadphonesMixer.gain(0, 0.5);  // USB phone right channel  
+  rightHeadphonesMixer.gain(1, 0.3);  // Playback right channel
+  rightHeadphonesMixer.gain(2, 0);    // Empty
+  rightHeadphonesMixer.gain(3, 0);    // Empty
+  
+  // Recording mixer
+  phoneMixer.gain(0, 0.5);  // Phone left
+  phoneMixer.gain(1, 0.5);  // Phone right
+  phoneMixer.gain(2, 0.5);  // Headset mic
+  phoneMixer.gain(3, 0.0);  // Unused
 
   Serial.println("Audio processing initialized");
 }
@@ -163,13 +177,30 @@ void startPlayback()
 
   // Create the filepath
   String filepath = String(CALLS_DIRECTORY) + "/" + currentFilename;
+  
+  Serial.print("Attempting to play: ");
+  Serial.println(filepath);
 
+  // Try stopping any existing playback first
+  playWav.stop();
+  
+  // Small delay to ensure cleanup
+  delay(10);
+  
   // Start playback
   if (playWav.play(filepath.c_str())) 
   {
     currentState = STATE_PLAYBACK;
     Serial.print("Playing: ");
     Serial.println(currentFilename);
+    
+    // Add this debug to see if the file is actually being read
+    delay(100);  // Give it a moment to start
+    Serial.print("Is playing: ");
+    Serial.println(playWav.isPlaying());
+    Serial.print("Length: ");
+    Serial.print(playWav.lengthMillis());
+    Serial.println(" ms");
   }
   else 
   {

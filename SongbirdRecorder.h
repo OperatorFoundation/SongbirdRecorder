@@ -18,6 +18,11 @@
 
 // Hardware pin definitions
 
+// Headphone amplifier pins
+#define HPAMP_VOL_CLK    0
+#define HPAMP_VOL_UD     1
+#define HPAMP_SHUTDOWN   2
+
 // Buttons
 #define BTN_RIGHT_PIN    3    // Next file
 #define BTN_DOWN_PIN     4    // Play/Pause
@@ -40,32 +45,32 @@
 #define OLED_SDA_PIN     17
 
 // Display constants
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 32
-#define OLED_RESET -1
-#define OLED_ADDRESS 0x3C
+#define SCREEN_WIDTH      128
+#define SCREEN_HEIGHT     32
+#define OLED_RESET        -1
+#define OLED_ADDRESS      0x3C
 
 // Audio constants
-#define AUDIO_MEMORY_BLOCKS 60
-#define RECORDING_SAMPLE_RATE 44100
-#define AUDIO_BITS_PER_SAMPLE 16
-#define AUDIO_CHANNELS 1  // Mono recording
+#define AUDIO_MEMORY_BLOCKS     60
+#define RECORDING_SAMPLE_RATE   44100
+#define AUDIO_BITS_PER_SAMPLE   16
+#define AUDIO_CHANNELS          1  // Mono recording
 
 // Recording constants
-#define MAX_RECORDING_TIME_MS 600000  // 10 minutes
-#define RECORDING_BUFFER_SIZE 512
-#define AUDIO_BLOCK_SIZE 256          // The Teensy Audio Library works with fixed-size audio blocks (128 samples × 2 bytes per sample)
+#define MAX_RECORDING_TIME_MS   600000  // 10 minutes
+#define RECORDING_BUFFER_SIZE   512
+#define AUDIO_BLOCK_SIZE        256          // The Teensy Audio Library works with fixed-size audio blocks (128 samples × 2 bytes per sample)
 
-#define CALLS_DIRECTORY "CALLS"
+#define CALLS_DIRECTORY         "CALLS"
 
 // Button debounce
-#define BUTTON_DEBOUNCE_MS 200
+#define BUTTON_DEBOUNCE_MS      200
 
 // Audio levels
-#define PHONE_AUDIO_LEVEL 0.5f
-#define HEADSET_AUDIO_LEVEL 0.5f
-#define PLAYBACK_AUDIO_LEVEL 0.3f
-#define RECORDING_MIX_LEVEL 0.5f
+#define PHONE_AUDIO_LEVEL       0.8f
+#define HEADSET_AUDIO_LEVEL     0.5f
+#define PLAYBACK_AUDIO_LEVEL    0.3f
+#define RECORDING_MIX_LEVEL     0.5f
 
 // System states
 enum RecorderState {
@@ -107,7 +112,8 @@ extern AudioInputI2S inputFromHeadset;
 extern AudioOutputUSB outputToPhone;
 extern AudioOutputI2S outputToHeadset;
 extern AudioMixer4 phoneMixer;
-extern AudioMixer4 headsetMixer;
+extern AudioMixer4 leftHeadphonesMixer;
+extern AudioMixer4 rightHeadphonesMixer;
 extern AudioRecordQueue recordQueue;
 extern AudioPlaySdWav playWav;
 extern AudioAnalyzeRMS inputLevel;
@@ -133,6 +139,7 @@ void writeWAVData(byte* buffer, int length);
 void finalizeWAVFile();
 void listFiles();
 void deleteFile(String filename);
+void deleteAll();
 
 // From display_manager.ino
 void initializeDisplay();

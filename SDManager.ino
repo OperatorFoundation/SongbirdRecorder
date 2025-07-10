@@ -165,7 +165,7 @@ void createWAVFile(String filename)
   memcpy(header.wave, "WAVE", 4);
 
   // Format chunk
-  memcpy(header.fmt, "fmt", 4);
+  memcpy(header.fmt, "fmt ", 4);
   header.fmtSize = 16;
   header.audioFormat = 1; // PCM
   header.numChannels = AUDIO_CHANNELS;
@@ -187,6 +187,15 @@ void createWAVFile(String filename)
 
   Serial.print("Created WAV file: ");
   Serial.println(filepath);
+
+  Serial.print("DEBUG: WAV header size: ");
+  Serial.println(sizeof(WAVHeader));
+  Serial.print("DEBUG: Sample rate: ");
+  Serial.println(header.sampleRate);
+  Serial.print("DEBUG: Channels: ");
+  Serial.println(header.numChannels);
+  Serial.print("DEBUG: Bits per sample: ");
+  Serial.println(header.bitsPerSample);
 }
 
 void writeWAVData(byte *buffer, int length)
@@ -209,23 +218,32 @@ void writeWAVData(byte *buffer, int length)
 
 void finalizeWAVFile()
 {
-  if (!recordingFile || sdCardReady) return;
-
+  if (!recordingFile || !sdCardReady) return;
+  
   // Calculate file sizes
   uint32_t fileSize = sizeof(WAVHeader) + recordingBytesWritten - 8;
   uint32_t dataSize = recordingBytesWritten;
-
+  
+  Serial.print("DEBUG: fileSize = ");
+  Serial.print(fileSize);
+  Serial.print(", dataSize = ");
+  Serial.println(dataSize);
+  
   // Update WAV header with actual sizes
-  recordingFile.seek(4);  // File size position
-  recordingFile.write((const uint8_t*)&fileSize, 4);
-
+  recordingFile.seek(4); // File size position
+  size_t written1 = recordingFile.write((const uint8_t*)&fileSize, 4);
+  Serial.print("DEBUG: Wrote fileSize, bytes written: ");
+  Serial.println(written1);
+  
   recordingFile.seek(40); // Data size position
-  recordingFile.write((const uint8_t*)&dataSize, 4);
-
+  size_t written2 = recordingFile.write((const uint8_t*)&dataSize, 4);
+  Serial.print("DEBUG: Wrote dataSize, bytes written: ");
+  Serial.println(written2);
+  
   // Close the file
   recordingFile.flush();
   recordingFile.close();
-
+  
   Serial.print("WAV file finalized: ");
   Serial.print(recordingBytesWritten);
   Serial.println(" bytes of audio data");
@@ -277,6 +295,101 @@ void listFiles()
     }
   }
   else 
+  {
+    Serial.println("Failed to open CALLS directory");
+  }
+}
+
+void deleteAll()
+{
+  // Check if SD card is ready before proceeding
+  if (!sdCardReady)
+  {
+    Serial.println("SD card not ready");
+    return;
+  }
+  
+  Serial.println("Deleting recordings in CALLS directory:");
+  
+  // Open the CALLS directory
+  File dir = SD.open(CALLS_DIRECTORY);
+  if (dir)
+  {
+    int filesDeleted = 0;    // Count of successfully deleted files
+    int filesFound = 0;      // Count of .WAV files found
+    int deletionErrors = 0;  // Count of files that failed to delete
+    
+    // Iterate through all files in the directory
+    while (true)
+    {
+      File entry = dir.openNextFile();
+      if (!entry) break;  // No more files
+      
+      String filename = String(entry.name());
+      
+      // Process only .WAV files (skip directories and other file types)
+      if (!entry.isDirectory() && filename.endsWith(".WAV"))
+      {
+        filesFound++;
+        
+        // Construct the full path for deletion
+        String fullPath = String(CALLS_DIRECTORY) + "/" + filename;
+        
+        // Close the file before attempting deletion
+        entry.close();
+        
+        // Attempt to delete the file
+        if (SD.remove(fullPath.c_str()))
+        {
+          // Successful deletion
+          Serial.println("  Deleted: " + filename);
+          filesDeleted++;
+        }
+        else
+        {
+          // Failed to delete - log error and continue
+          Serial.println("  ERROR: Failed to delete " + filename);
+          deletionErrors++;
+        }
+      }
+      else
+      {
+        // Close files that we're not processing
+        entry.close();
+      }
+    }
+    
+    // Close the directory
+    dir.close();
+    
+    // Print summary results
+    Serial.println();
+    if (filesFound == 0)
+    {
+      Serial.println("  No .WAV recordings found");
+    }
+    else
+    {
+      Serial.print("  Summary: ");
+      Serial.print(filesDeleted);
+      Serial.print(" files deleted");
+      
+      if (deletionErrors > 0)
+      {
+        Serial.print(", ");
+        Serial.print(deletionErrors);
+        Serial.print(" errors");
+      }
+      
+      Serial.print(" (");
+      Serial.print(filesFound);
+      Serial.println(" total .WAV files found)");
+
+      // Rescan files and update current selection
+      scanForFiles();
+    }
+  }
+  else
   {
     Serial.println("Failed to open CALLS directory");
   }

@@ -6,6 +6,7 @@
  * Commands:
  * - LIST: Show all recordings
  * - DELETE filename.wav: Delete a specific recording
+ * - DELETEALL: Delete all WAV files in the CALLS directory
  * - HELP: Show available commands
  * - STATUS: Show system status
  */
@@ -17,12 +18,29 @@
   if (!Serial.available()) return;
 
   // Read command for serial
-  String command = Serial.readStringUntil('\n');
-  command.trim();
-  command.toUpperCase();
+  String commandLine = Serial.readStringUntil('\n');
+  commandLine.trim();
 
   Serial.print("Command received: ");
-  Serial.println(command);
+  Serial.println(commandLine);
+
+  String command = "";
+  String arguments = "";
+  int spaceIndex = commandLine.indexOf(' ');
+
+  if (spaceIndex != -1)
+  {
+    // We've got arguments!
+    command = commandLine.substring(0, spaceIndex);
+    arguments = commandLine.substring(spaceIndex + 1);
+    arguments.trim();
+  }
+  else 
+  {
+    command = commandLine;
+  }
+
+  command.toUpperCase();
 
   // Process commands
   if (command == "LIST")
@@ -31,9 +49,21 @@
   }
   else if (command == "DELETE")
   {
-    String filename = command.substring(7);
-    filename.trim();
-    deleteFile(filename);
+    if (arguments.length() == 0)
+    {
+      // No filename provided
+      Serial.println("ERROR: Please provide a filename to delete");
+      Serial.println("Usage: DELETE filename.wav");
+      Serial.println("Or use DELETEALL to delete all recordings");
+    }
+    else 
+    {
+      deleteFile(arguments);
+    }
+  }
+  else if (command == "DELETEALL")
+  {
+    deleteAll();
   }
   else if (command == "HELP")
   {
@@ -70,6 +100,7 @@
   Serial.println("=== Songbird Call Recorder Commands ===");
   Serial.println("LIST                  - List all recordings");
   Serial.println("DELETE filename.wav   - Delete a recording");
+  erial.println("DELETEALL              - Delete all recordings");
   Serial.println("STATUS                - Show system status");
   Serial.println("SCAN                  - Rescan SD card for files");
   Serial.println("INIT                  - Reinitialize SD card");
