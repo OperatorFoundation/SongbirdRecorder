@@ -55,6 +55,9 @@
 #define RECORDING_SAMPLE_RATE   44100
 #define AUDIO_BITS_PER_SAMPLE   16
 #define AUDIO_CHANNELS          1  // Mono recording
+#define BEEP_FREQUENCY 1000        // 1kHz beep tone
+#define BEEP_AMPLITUDE 0.3         // Beep volume (0.0 to 1.0)
+#define BEEP_DURATION_MS 200       // Length of beep in milliseconds
 
 // Recording constants
 #define MAX_RECORDING_TIME_MS   600000  // 10 minutes
@@ -119,6 +122,7 @@ extern AudioPlaySdWav playWav;
 extern AudioAnalyzeRMS inputLevel;
 extern AudioControlSGTL5000 audioShield;
 extern Adafruit_SSD1306 display;
+extern AudioSynthWaveformSine recordBeep;
 
 // Function declarations
 // From audio_manager.ino

@@ -42,6 +42,7 @@ AudioPlaySdWav playWav;
 AudioAnalyzeRMS inputLevel;
 AudioControlSGTL5000 audioShield;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire1, OLED_RESET);
+AudioSynthWaveformSine recordBeep;
 
 
 void setup() 
@@ -90,6 +91,12 @@ void loop()
   // Handle active recording
   if (currentState == STATE_RECORDING) 
   {
+    // static unsigned long lastReminderBeep = 0;
+    // if (millis() - lastReminderBeep > 30000) {  // Every 30 seconds
+    //   playRecordingBeep();
+    //   lastReminderBeep = millis();
+    // }
+
     handleRecording();
   }
 

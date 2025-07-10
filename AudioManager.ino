@@ -23,11 +23,14 @@ AudioConnection patchCord4(rightHeadphonesMixer, 0, outputToHeadset, 1); // Righ
 AudioConnection patchCord5(inputFromHeadset, 0, outputToPhone, 0);
 
 // Recording connections
-AudioConnection patchCord6(inputFromPhone, 0, phoneMixer, 0);      // Phone left for recording
-AudioConnection patchCord7(inputFromPhone, 1, phoneMixer, 1);      // Phone right for recording  
-AudioConnection patchCord8(inputFromHeadset, 0, phoneMixer, 2);    // Headset mic for recording
-AudioConnection patchCord9(phoneMixer, 0, recordQueue, 0);         // Mixed audio to recorder
-AudioConnection patchCord10(phoneMixer, 0, inputLevel, 0);         // Audio level monitoring
+AudioConnection patchCord6(inputFromPhone, 0, phoneMixer, 0);           // Phone left for recording
+AudioConnection patchCord7(inputFromPhone, 1, phoneMixer, 1);           // Phone right for recording  
+AudioConnection patchCord8(inputFromHeadset, 0, phoneMixer, 2);         // Headset mic for recording
+AudioConnection patchCord9(phoneMixer, 0, recordQueue, 0);              // Mixed audio to recorder
+AudioConnection patchCord10(phoneMixer, 0, inputLevel, 0);              // Audio level monitoring
+AudioConnection patchCordBeep(recordBeep, 0, leftHeadphonesMixer, 2);   // Beep to left headphone mixer
+AudioConnection patchCordBeep2(recordBeep, 0, rightHeadphonesMixer, 2); // Beep to right headphone mixer
+
 
 // Playback connections
 AudioConnection patchCord11(playWav, 0, leftHeadphonesMixer, 1);   // Playback left to left mixer
@@ -59,12 +62,12 @@ void setupAudioProcessing()
   // Configure mixers
   leftHeadphonesMixer.gain(0, 0.5);   // USB phone left channel
   leftHeadphonesMixer.gain(1, 0.3);   // Playback left channel
-  leftHeadphonesMixer.gain(2, 0);     // Empty
+  leftHeadphonesMixer.gain(2, 0.2);   // Beep channel
   leftHeadphonesMixer.gain(3, 0);     // Empty
   
   rightHeadphonesMixer.gain(0, 0.5);  // USB phone right channel  
   rightHeadphonesMixer.gain(1, 0.3);  // Playback right channel
-  rightHeadphonesMixer.gain(2, 0);    // Empty
+  rightHeadphonesMixer.gain(2, 0.2);  // Beep channel
   rightHeadphonesMixer.gain(3, 0);    // Empty
   
   // Recording mixer
@@ -72,6 +75,10 @@ void setupAudioProcessing()
   phoneMixer.gain(1, 0.5);  // Phone right
   phoneMixer.gain(2, 0.5);  // Headset mic
   phoneMixer.gain(3, 0.0);  // Unused
+
+  // Initialize beep generator
+  recordBeep.frequency(BEEP_FREQUENCY);
+  recordBeep.amplitude(0);  // Start silent
 
   Serial.println("Audio processing initialized");
 }
@@ -89,6 +96,9 @@ void startRecording()
     Serial.println("Cannot record: Already recording or playing");
     return;
   }
+
+  // Play beep to indicate recording start
+  playRecordingBeep();
 
   // Generate filename with current timestamp
   String filename = generateRecordingFilename();
@@ -120,6 +130,9 @@ void stopRecording()
 
   // Update state
   currentState = STATE_IDLE;
+
+  // Play beep to indicate recording stop
+  playRecordingBeep();
 
   // Rescan for files
   scanForFiles();
@@ -207,6 +220,13 @@ void startPlayback()
     Serial.print("Failed to play: ");
     Serial.println(currentFilename);
   }
+}
+
+void playRecordingBeep() 
+{
+  recordBeep.amplitude(BEEP_AMPLITUDE);
+  delay(BEEP_DURATION_MS);
+  recordBeep.amplitude(0);
 }
 
 void stopPlayback() 
