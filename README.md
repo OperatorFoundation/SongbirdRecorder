@@ -6,7 +6,7 @@ An audio recorder for the Songbird hardware platform that can record audio from 
 
 This device sits between your audio source and headset, recording both the USB audio input and headset microphone to an SD card while allowing normal audio playback and conversation.
 
-## Hardware
+## Built for Songbird Hardware
 
 - **Microcontroller**: Teensy 4.0
 - **Audio Processing**: SGTL5000 codec via Audio Shield
