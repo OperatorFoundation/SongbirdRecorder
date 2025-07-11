@@ -13,52 +13,70 @@
 #include "SongbirdRecorder.h"
 
 // Button state tracking for debouncing
-static bool lastUpState = HIGH;
-static bool lastDownState = HIGH;
-static bool lastLeftState = HIGH;
-static bool lastRightState = HIGH;
-static unsigned long lastButtonTime = 0;
+struct ButtonState
+{
+  bool lastReading;         // Last physical reading
+  bool lastState;           // Last debounced state
+  unsigned long lastTime;   // Last time state changed
+  bool pressed;             // True if button was just pressed
+};
+
+static ButtonState upButton = {HIGH, HIGH, 0, false};
+static ButtonState downButton = {HIGH, HIGH, 0, false};
+static ButtonState leftButton = {HIGH, HIGH, 0, false};
+static ButtonState rightButton = {HIGH, HIGH, 0, false};
+
+bool debounceButton(ButtonState* btn, int pin)
+{
+  bool currentReading = digitalRead(pin);
+  bool buttonPressed = false;
+
+  // If the reading chnaged, reset the debounce timer
+  if (currentReading != btn->lastReading) 
+  {
+    btn->lastTime = millis();
+  }
+
+  // If enough time has passed, check if state is actually changed
+  if ((millis() - btn->lastTime) > BUTTON_DEBOUNCE_MS) 
+  {
+    // If the button state has changed
+    if (currentReading != btn->lastState)
+    {
+      btn->lastState = currentReading;
+
+      // Button was pressed (went from HIGH to LOW with pull-up)
+      if (btn->lastState == LOW) 
+      {
+        buttonPressed = true;
+      }
+    }
+  }
+
+  btn->lastReading = currentReading;
+  return buttonPressed;
+}
 
 void handleButtons()
 {
-  // Simple debouncing - ignore button presses for a short time
-  if (millis() - lastButtonTime < BUTTON_DEBOUNCE_MS) return;
-
-  // Read current button states
-  bool upPressed = (digitalRead(BTN_UP_PIN) == LOW && lastUpState == HIGH);
-  bool downPressed = (digitalRead(BTN_DOWN_PIN) == LOW && lastDownState == HIGH);
-  bool leftPressed = (digitalRead(BTN_LEFT_PIN) == LOW && lastLeftState == HIGH);
-  bool rightPressed = (digitalRead(BTN_RIGHT_PIN) == LOW && lastRightState == HIGH);
-  
-  // Update last button states
-  lastUpState = digitalRead(BTN_UP_PIN);
-  lastDownState = digitalRead(BTN_DOWN_PIN);
-  lastLeftState = digitalRead(BTN_LEFT_PIN);
-  lastRightState = digitalRead(BTN_RIGHT_PIN);
-
-  // Handle button presses
-  if (upPressed) 
+  if (debounceButton(&upButton, BTN_UP_PIN)) 
   {
     handleUpButton();
-    lastButtonTime = millis();
   }
 
-  if (downPressed) 
+  if (debounceButton(&downButton, BTN_DOWN_PIN))
   {
     handleDownButton();
-    lastButtonTime = millis();
   }
 
-  if (leftPressed) 
+  if (debounceButton(&leftButton, BTN_LEFT_PIN))
   {
     handleLeftButton();
-    lastButtonTime = millis();
   }
 
-  if (rightPressed) 
+  if (debounceButton(&rightButton, BTN_RIGHT_PIN))
   {
     handleRightButton();
-    lastButtonTime = millis();
   }
 }
 

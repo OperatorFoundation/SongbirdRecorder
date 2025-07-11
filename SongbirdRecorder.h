@@ -67,7 +67,7 @@
 #define CALLS_DIRECTORY         "CALLS"
 
 // Button debounce
-#define BUTTON_DEBOUNCE_MS      200
+#define BUTTON_DEBOUNCE_MS      50
 
 // Audio levels
 #define PHONE_AUDIO_LEVEL       0.8f
