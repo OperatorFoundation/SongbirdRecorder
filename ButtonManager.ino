@@ -13,20 +13,20 @@
 #include "SongbirdRecorder.h"
 
 // Button state tracking for debouncing
-struct ButtonState
+typedef struct ButtonState
 {
   bool lastReading;         // Last physical reading
   bool lastState;           // Last debounced state
   unsigned long lastTime;   // Last time state changed
   bool pressed;             // True if button was just pressed
-};
+} ButtonState;
 
 static ButtonState upButton = {HIGH, HIGH, 0, false};
 static ButtonState downButton = {HIGH, HIGH, 0, false};
 static ButtonState leftButton = {HIGH, HIGH, 0, false};
 static ButtonState rightButton = {HIGH, HIGH, 0, false};
 
-bool debounceButton(ButtonState* btn, int pin)
+bool debounceButton(struct ButtonState* btn, int pin)
 {
   bool currentReading = digitalRead(pin);
   bool buttonPressed = false;
