@@ -46,7 +46,7 @@ This device sits between your audio source and headset, recording both the USB a
 - **Protect recorded data** from unauthorized access
 - **Implement retention policies** - don't keep recordings longer than necessary
 
-### Data Security Best Practices
+### Data Security Best Practices When Creating Production Applications
 - **Encrypt SD cards** when possible
 - **Use strong passwords** for file access
 - **Limit access** to recordings on a need-to-know basis
@@ -118,10 +118,6 @@ Recordings are saved as WAV files:
 - `display_manager.ino` - OLED display
 - `button_manager.ino` - Button handling
 - `serial_manager.ino` - Serial commands
-
-## License
-
-MIT License - see full text below.
 
 ## License
 

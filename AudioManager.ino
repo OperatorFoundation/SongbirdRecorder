@@ -1,25 +1,24 @@
 /*
- * AudioManager.ino
- * 
- * Audio processing and routing for phone call recording
- * 
- * Audio Flow:
- * - Phone audio (USB) → headset output (for user to hear)
- * - Headset mic → phone output (user's voice to phone)
- * - Both streams → mixer → recording queue → SD card
- * - Playback → headset output (to hear recordings)
- */
+* AudioManager.ino
+* 
+* Audio processing and routing for phone call recording
+* 
+* Audio Flow:
+* - Phone audio (USB) → headset output (for user to hear)
+* - Headset mic → phone output (user's voice to phone)
+* - Both streams → mixer → recording queue → SD card
+* - Playback → headset output (to hear recordings)
+*/
 
- #include "SongbirdRecorder.h"
+#include "SongbirdRecorder.h"
 
- // Audio connections - Core phone call routing
-// Audio connections - Use separate left/right mixers like your working code
+// Audio connections - Core phone call routing
 AudioConnection patchCord1(inputFromPhone, 0, leftHeadphonesMixer, 0);   // Phone left to left mixer
 AudioConnection patchCord2(inputFromPhone, 1, rightHeadphonesMixer, 0);  // Phone right to right mixer
 AudioConnection patchCord3(leftHeadphonesMixer, 0, outputToHeadset, 0);  // Left mixer to left output
 AudioConnection patchCord4(rightHeadphonesMixer, 0, outputToHeadset, 1); // Right mixer to right output
 
-// Microphone passthrough - same as your working code
+// Microphone passthrough
 AudioConnection patchCord5(inputFromHeadset, 0, phoneOutputMixer, 0);  // Headset mic to mixer
 AudioConnection patchCord5b(recordBeep, 0, phoneOutputMixer, 1);       // Beep to mixer
 AudioConnection patchCord5c(phoneOutputMixer, 0, outputToPhone, 0);    // Mixed output to phone
@@ -45,14 +44,14 @@ void setupAudioProcessing()
   AudioMemory(AUDIO_MEMORY_BLOCKS);
   
   // Setup headphone amplifier
+  pinMode(HPAMP_VOL_CLK, OUTPUT);
+  pinMode(HPAMP_VOL_UD, OUTPUT);
+  pinMode(HPAMP_SHUTDOWN, OUTPUT);
+
   digitalWrite(HPAMP_VOL_CLK, LOW);
   digitalWrite(HPAMP_VOL_UD, LOW);
   digitalWrite(HPAMP_SHUTDOWN, LOW);  // LOW to enable headphone amp
 
-  pinMode(HPAMP_VOL_CLK, OUTPUT);
-  pinMode(HPAMP_VOL_UD, OUTPUT);
-  pinMode(HPAMP_SHUTDOWN, OUTPUT);
-  
   audioShield.enable();
   audioShield.volume(0.5);
   audioShield.inputSelect(AUDIO_INPUT_MIC);
@@ -213,14 +212,6 @@ void startPlayback()
     currentState = STATE_PLAYBACK;
     Serial.print("Playing: ");
     Serial.println(currentFilename);
-    
-    // Add this debug to see if the file is actually being read
-    delay(100);  // Give it a moment to start
-    Serial.print("Is playing: ");
-    Serial.println(playWav.isPlaying());
-    Serial.print("Length: ");
-    Serial.print(playWav.lengthMillis());
-    Serial.println(" ms");
   }
   else 
   {

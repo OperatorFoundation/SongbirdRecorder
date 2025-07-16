@@ -81,7 +81,7 @@ void setup()
   updateDisplay();
   
   Serial.println("Songbird Recorder is ready.");
-  Serial.println("Commands: LIST, DELETE filename.wav, HELP");
+  Serial.println("Commands: LIST, DELETE filename.wav, DELETEALL, HELP");
 }
 
 void loop() 

@@ -100,7 +100,7 @@
   Serial.println("=== Songbird Call Recorder Commands ===");
   Serial.println("LIST                  - List all recordings");
   Serial.println("DELETE filename.wav   - Delete a recording");
-  Serial.println("DELETEALL              - Delete all recordings");
+  Serial.println("DELETEALL             - Delete all recordings");
   Serial.println("STATUS                - Show system status");
   Serial.println("SCAN                  - Rescan SD card for files");
   Serial.println("INIT                  - Reinitialize SD card");
