@@ -84,6 +84,13 @@ void handleUpButton()
 {
   Serial.println("UP button pressed");
 
+  // Don't allow recording without SD card
+  if (!sdCardReady)
+  {
+    Serial.println("Cannot record - no SD card");
+    return;
+  }
+
   switch (currentState)
   {
     case STATE_IDLE:

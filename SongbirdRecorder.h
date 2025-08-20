@@ -19,15 +19,15 @@
 // Hardware pin definitions
 
 // Headphone amplifier pins
-#define HPAMP_VOL_CLK    0
-#define HPAMP_VOL_UD     1
-#define HPAMP_SHUTDOWN   2
+#define HPAMP_VOL_CLK    52
+#define HPAMP_VOL_UD     5
+#define HPAMP_SHUTDOWN   45
 
 // Buttons
-#define BTN_RIGHT_PIN    3    // Next file
-#define BTN_DOWN_PIN     4    // Play/Pause
-#define BTN_UP_PIN       5    // Start/Stop recording
-#define BTN_LEFT_PIN     6    // Previous file
+#define BTN_RIGHT_PIN    30    // Next file
+#define BTN_DOWN_PIN     29    // Play/Pause
+#define BTN_UP_PIN       3     // Start/Stop recording
+#define BTN_LEFT_PIN     28    // Previous file
 
 // SD card
 #define SDCARD_DETECT_PIN 9
@@ -37,8 +37,8 @@
 #define SDCARD_SCK_PIN   13
 
 // LED
-#define LED_1_PIN        14   // Recording indicator (Blue)
-#define LED_2_PIN        15   // Playback indicator (Pink)
+#define LED_1_PIN        35   // Recording indicator (Blue)
+#define LED_2_PIN        31   // Playback indicator (Pink)
 
 // Display
 #define OLED_SCL_PIN     16

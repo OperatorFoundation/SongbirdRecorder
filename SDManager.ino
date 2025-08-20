@@ -1,22 +1,32 @@
 /*
- * SDManager.ino
- * 
- * SD card management and WAV file operations
- * 
- * Handles:
- * - SD card initialization and detection
- * - WAV file creation with proper headers
- * - File scanning and management
- * - Directory operations
- */
+* SDManager.ino
+* 
+* SD card management and WAV file operations
+* 
+* Handles:
+* - SD card initialization and detection
+* - WAV file creation with proper headers
+* - File scanning and management
+* - Directory operations
+*/
 
- #include "SongbirdRecorder.h"
+#include "SongbirdRecorder.h"
 
- void initializeSDCard()
- {
+void initializeSDCard()
+{
+  pinMode(SDCARD_DETECT_PIN,  INPUT_PULLUP);
+
   SPI.setMOSI(SDCARD_MOSI_PIN);
   SPI.setMISO(SDCARD_MISO_PIN);
   SPI.setSCK(SDCARD_SCK_PIN);
+
+  // Check if SD card is physically present (LOW = card inserted)
+  if (digitalRead(SDCARD_DETECT_PIN))  // HIGH = no card
+  {
+    Serial.println("No SD card detected");
+    sdCardReady = false;
+    return;
+  }
 
   // Initialize the SD card
   if (!SD.begin(SDCARD_CS_PIN)) 
@@ -25,37 +35,40 @@
     sdCardReady = false;
     return;
   }
+  
+  createCallsDirectory();
 
-  //   // Check if SD card is physically present
-  // if (!digitalRead(SDCARD_DETECT_PIN)) 
-  // {
-  //   Serial.println("No SD card detected");
-  //   sdCardReady = false;
-  //   return;
-  // }
+  // Only mark as ready if directory creation succeeded
+  if (sdCardReady)  // createCallsDirectory sets this to false on failure
+  {
+    // Scan for existing files
+    scanForFiles();
+    Serial.println("SD card initialized successfully");
+  }
+}
 
+void createCallsDirectory()
+{
   // Create CALLS directory if it doesn't already exist
   if (!SD.exists(CALLS_DIRECTORY)) 
   {
     if (SD.mkdir(CALLS_DIRECTORY)) 
     {
       Serial.println("Created CALLS directory");
+      sdCardReady = true;
     }
-    else 
+    else
     {
       Serial.println("Failed to create CALLS directory");
       sdCardReady = false;
-      return;
     }
   }
-
-  sdCardReady = true;
-
-  // Scan for existing files
-  scanForFiles();
-
-  Serial.println("SD card initialized successfully");
- }
+  else
+  {
+    // Directory already exists
+    sdCardReady = true;
+  }
+}
 
 void scanForFiles()
 {
@@ -419,6 +432,61 @@ void deleteFile(String filename)
   {
     Serial.print("Failed to delete: ");
     Serial.println(filename);
+  }
+}
+
+void checkSDCardStatus()
+{
+  bool previousState = sdCardReady;
+
+  // Check physical detect pin (LOW = card inserted, HIGH = no card)
+  bool cardPresent = !digitalRead(SDCARD_DETECT_PIN);
+
+  if (!sdCardReady && cardPresent)
+  {
+    // Card is present but not initialized - try to initialize
+    if (SD.begin(SDCARD_CS_PIN))
+    {
+      sdCardReady = true;
+      createCallsDirectory();
+
+      // Only continue if directory creation succeeded
+      if (sdCardReady)
+      {
+        scanForFiles();
+        Serial.println("SD card detected and initialized");
+      }
+    }
+    else
+    {
+      Serial.println("SD card detected but initialization failed");
+      sdCardReady = false;
+    }
+  }
+  else if (sdCardReady && !cardPresent)
+  {
+    // Card was ready but is no longer present
+    sdCardReady = false;
+    totalFiles = 0;
+    currentFilename = "";
+    Serial.println("SD card removed");
+  }
+  else if (sdCardReady && cardPresent)
+  {
+    // Card should still be present and ready - verify it's accessible
+    File testDir = SD.open("/");
+    if (!testDir)
+    {
+      // Card present but not accessible - try to reinitialize
+      sdCardReady = false;
+      totalFiles = 0;
+      currentFilename = "";
+      Serial.println("SD card error - will retry initialization");
+    }
+    else
+    {
+      testDir.close();
+    }
   }
 }
 

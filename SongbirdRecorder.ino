@@ -63,9 +63,6 @@ void setup()
   pinMode(BTN_LEFT_PIN, INPUT_PULLUP);
   pinMode(BTN_RIGHT_PIN, INPUT_PULLUP);
 
-  // SD Card
-  pinMode(SDCARD_DETECT_PIN, INPUT_PULLUP);
-
   // Turn off LEDs initially
   digitalWrite(LED_1_PIN, LOW);
   digitalWrite(LED_2_PIN, LOW);
@@ -114,6 +111,14 @@ void loop()
     // Updates 4 times per second
     updateDisplay();
     lastDisplayUpdate = millis();
+  }
+
+  // Check SD card status periodically
+  static unsigned long lastSDCheck = 0;
+  if (millis() - lastSDCheck > 2000)  // Check every 2 seconds
+  {
+    checkSDCardStatus();
+    lastSDCheck = millis();
   }
 
   handleSerialCommands();

@@ -131,31 +131,47 @@ void showPlaybackStatus()
 
 void showIdleStatus()
 {
-  // Line 1: Status and timing
-  // Show idle status
-  display.print("IDLE");
-  if (totalFiles > 0) 
+  if (!sdCardReady)
   {
-    display.print("  [");
-    display.print(currentFileIndex + 1);
-    display.print("/");
-    display.print(totalFiles);
-    display.print("]");
+    // Show prominent SD card message
+    display.print("INSERT SD CARD");
+    
+    // Line 2: instruction
+    display.setCursor(0, 12);
+    display.print("Please insert SD card");
+    
+    // Line 3: Status
+    display.setCursor(0, 24);
+    display.print("Waiting for SD card...");
   }
-
-  // Line 2: Current filename or status
-  showFileStatus();
-
-  // Line 3: Button controls
-  display.setCursor(0, 24);
-
-  if (totalFiles > 0) 
-  {
-    display.print("UP:Rec DN:Play L/R:Nav");
-  } 
   else 
   {
-    display.print("UP:Record");
+    // Line 1: Status and timing
+    // Show idle status
+    display.print("IDLE");
+    if (totalFiles > 0) 
+    {
+      display.print("  [");
+      display.print(currentFileIndex + 1);
+      display.print("/");
+      display.print(totalFiles);
+      display.print("]");
+    }
+
+    // Line 2: Current filename or status
+    showFileStatus();
+
+    // Line 3: Button controls
+    display.setCursor(0, 24);
+
+    if (totalFiles > 0) 
+    {
+      display.print("UP:Rec DN:Play L/R:Nav");
+    } 
+    else 
+    {
+      display.print("UP:Record");
+    }
   }
 }
 
