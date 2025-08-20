@@ -6,10 +6,10 @@ An audio recorder for the Songbird hardware platform that can record audio from 
 
 This device sits between your audio source and headset, recording both the USB audio input and headset microphone to an SD card while allowing normal audio playback and conversation.
 
-## Built for Songbird Hardware
+## Built for Songbird Hardware v3
 
-- **Microcontroller**: Teensy 4.0
-- **Audio Processing**: SGTL5000 codec via Audio Shield
+- **Microcontroller**: Teensy 4.1
+- **Audio Processing**: SGTL5000 codec
 - **Storage**: SD card (FAT32 formatted)
 - **Display**: 128x32 OLED
 - **Controls**: 4 buttons
@@ -18,7 +18,7 @@ This device sits between your audio source and headset, recording both the USB a
 ## Setup
 
 1. Insert SD card
-2. Connect headset via 3.5mm jack
+2. Connect headset via 3.5mm TRRS jack (headphone jack is wired using CTIA standard)
 3. Connect audio source via USB-C cable
 
 ## Uses
@@ -65,7 +65,7 @@ Users must ensure compliance with all applicable laws and ethical standards.**
    - Adafruit GFX Library
    - Adafruit SSD1306 Library
 3. Open `SongbirdRecorder.ino` in Arduino IDE
-4. Select Board: Teensy 4.0
+4. Select Board: Teensy 4.1
 5. Upload to device
 
 ## Usage
